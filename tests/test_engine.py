@@ -82,6 +82,26 @@ class EngineTests(unittest.TestCase):
         engine.decision(oid, 'Investigating', 'Owner', 'Check availability')
         self.assertEqual(engine.matches()['opportunities'][0]['status'], 'Investigating')
 
+    def test_opportunity_identity_survives_supply_reordering(self):
+        due = datetime.date.today().isoformat()
+        rows = [['Orlando', 'P1', 'Frame', 10], ['Tampa', 'P1', 'Frame', 10]]
+        self.ingest('inventory', rows)
+        self.ingest('reservations', [['R1', 'Orlando', 'P1', 10, due]])
+        before = engine.matches()['opportunities']
+        self.ingest('inventory', list(reversed(rows)))
+        self.assertEqual(before, engine.matches()['opportunities'])
+
+    def test_nonfinite_and_duplicate_quantities_rejected(self):
+        for value in ['NaN', 'Infinity', '-Infinity']:
+            self.assertFalse(self.ingest('inventory', [['Orlando', 'P1', 'Frame', value]])['ok'])
+        self.assertFalse(self.ingest('inventory', [['Orlando', 'P1', 'Frame', 1]] * 2)['ok'])
+
+    def test_overdue_return_is_not_assumed_received(self):
+        today = datetime.date.today()
+        self.ingest('returns', [['J1', 'Orlando', 'P1', 10, (today - datetime.timedelta(days=3)).isoformat()]])
+        self.ingest('reservations', [['R1', 'Orlando', 'P1', 10, today.isoformat()]])
+        self.assertEqual(engine.matches()['summary']['shortages'], 1)
+
 
 if __name__ == '__main__':
     unittest.main()

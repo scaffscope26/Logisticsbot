@@ -1,0 +1,19 @@
+# Local configuration and GitHub migration discovery. No remote project is selected here.
+project_id = "logisticsbot"
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+[db.seed]
+enabled = false
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:8765"
+enable_signup = false
+jwt_expiry = 3600
