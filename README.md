@@ -117,7 +117,8 @@ decision.
 Approved commitments block report replacement until an approver marks them
 Completed or Rejected. Approvals from an earlier planning day must be resolved
 before new approvals, to prevent overlapping commitments as the horizon advances.
-Earlier approvals remain selectable in the queue. Other statuses are planning
+Earlier approvals remain selectable in the queue. Completed movements cannot be
+approved again until a fresh report snapshot is imported. Other statuses are planning
 annotations; rejected suggestions remain visible and continue consuming their
 proposed quantities until the next report/plan revision. Every import and decision
 is audited with actor and timestamp. These are internal coordination records,

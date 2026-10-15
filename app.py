@@ -174,6 +174,9 @@ def decision():
     status = body.get('status')
     if status not in STATUSES:
         raise ValueError('Invalid opportunity status.')
+    if any(row['opportunity_id'] == body.get('id') and row['status'] == 'Completed'
+           for row in snapshot['decisions']):
+        raise ValueError('This movement is complete. Import refreshed reports before planning it again.')
     opportunity = next((row for row in result['opportunities']
                         if row['id'] == body.get('id') and row['source_type'] != 'shortage'), None)
     previous = next((row for row in snapshot['decisions']

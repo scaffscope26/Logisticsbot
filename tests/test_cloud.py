@@ -101,6 +101,17 @@ class CloudTests(unittest.TestCase):
                 'plan_day': planning_day().isoformat()}
         self.assertEqual(self.post('decision', body).status_code, 400)
 
+    def test_completed_movement_cannot_be_reapproved(self):
+        self.login()
+        self.seed()
+        dashboard = self.client.get('/api/dashboard').json
+        oid = dashboard['opportunities'][0]['id']
+        self.store.data['decisions'] = [{'opportunity_id': oid, 'status': 'Completed',
+            'plan_day': dashboard['plan_day'], 'owner': 'Owner', 'note': ''}]
+        body = {'id': oid, 'status': 'Approved (internal only)', 'confirmed': True,
+                'revision': 1, 'plan_day': dashboard['plan_day']}
+        self.assertEqual(self.post('decision', body).status_code, 400)
+
     def test_only_allowlisted_files_are_served(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)

@@ -53,6 +53,15 @@ end$$;
 select public.logistics_decide('10000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000001',2,'{"id":"test","source_type":"yard","quantity":10}',
   'Completed','Owner','Executed',(now() at time zone 'America/New_York')::date);
+do $$begin
+  begin perform public.logistics_decide('10000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000001',3,'{"id":"test","source_type":"yard","quantity":10}',
+    'Approved (internal only)','Owner','Again',(now() at time zone 'America/New_York')::date);
+    raise exception 'Completed movement unexpectedly approved again';
+  exception when raise_exception then
+    if sqlerrm <> 'Completed movement requires refreshed reports' then raise; end if;
+  end;
+end$$;
 select public.logistics_replace('10000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000001',3,'inventory','[]','new.csv');
 reset role;
