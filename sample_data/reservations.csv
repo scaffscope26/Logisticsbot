@@ -1,0 +1,4 @@
+reservation_id,facility,part_number,quantity_required,required_date
+RES-201,Fort Myers,FR-100,4500,2026-10-28
+RES-202,Pompano,PL-200,6000,2026-10-26
+RES-203,Tampa,BR-300,3000,2026-11-04
