@@ -37,8 +37,10 @@ production data while testing migrations.
    branching or the Supabase CLI. It creates only Logisticsbot-owned objects.
 2. Invite the first user using Supabase Authentication and establish a password
    through the project's configured invitation/password setup flow. This app
-   currently supports email/password sign-in; it does not implement an invitation
-   callback, password reset, public registration, or MFA challenge flow.
+   supports email/password sign-in plus invitation/recovery links that return an
+   access token in the URL fragment. Set Supabase Auth's Site URL to the intended
+   Vercel preview URL so those links land on the app's password setup form. Users
+   set their own passwords. Public registration and MFA challenges are not implemented.
 3. Run `supabase/bootstrap.example.sql` in that project's SQL editor after
    replacing the email. Save the returned workspace ID.
 4. Add these environment variables to Vercel's appropriate environment:

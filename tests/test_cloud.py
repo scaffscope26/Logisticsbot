@@ -21,6 +21,13 @@ class FakeStore:
             raise CloudError('Sign-in failed.', 401)
         return {'access_token': 'valid-token', 'expires_in': 3600}
 
+    def recover(self, email):
+        self.recovery_email = email
+
+    def set_password(self, token, password):
+        self.user(token)
+        self.password_updated = True
+
     def snapshot(self, token):
         self.user(token)
         return copy.deepcopy(self.data)
@@ -72,6 +79,20 @@ class CloudTests(unittest.TestCase):
     def test_csrf_rejected_including_login(self):
         response = self.client.post('/api/login', json={}, headers={'Origin': 'https://attacker.example'})
         self.assertEqual(response.status_code, 403)
+
+    def test_invitation_validates_membership_before_setting_password(self):
+        response = self.post('activate', {'token': 'wrong-token', 'password': 'example-passphrase'})
+        self.assertEqual(response.status_code, 401)
+        self.assertFalse(getattr(self.store, 'password_updated', False))
+        response = self.post('activate', {'token': 'valid-token', 'password': 'example-passphrase'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.store.password_updated)
+        self.assertEqual(self.client.get('/api/dashboard').status_code, 200)
+
+    def test_recovery_request_uses_generic_response(self):
+        response = self.post('recovery', {'email': 'test@example.com'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('If this address', response.json['message'])
 
     def test_import_persists_cloud_snapshot_and_checks_revision(self):
         self.login()

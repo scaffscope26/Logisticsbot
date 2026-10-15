@@ -102,6 +102,35 @@ def logout():
     return response
 
 
+@app.post('/api/recovery')
+def recovery():
+    body = request.get_json()
+    email = str(body.get('email', '')).strip()
+    if not email or len(email) > 254:
+        raise ValueError('Enter your email address.')
+    store().recover(email)
+    return jsonify(ok=True, message='If this address has an account, a password setup link will arrive shortly.')
+
+
+@app.post('/api/activate')
+def activate():
+    body = request.get_json()
+    token = str(body.get('token', ''))
+    password = str(body.get('password', ''))
+    if not token or len(token) > 8192:
+        raise ValueError('Open a valid invitation or recovery link.')
+    if not 12 <= len(password) <= 128:
+        raise ValueError('Use a password between 12 and 128 characters.')
+    adapter = store()
+    adapter.user(token)
+    adapter.snapshot(token)
+    adapter.set_password(token, password)
+    response = jsonify(ok=True)
+    response.set_cookie(COOKIE, token, httponly=True, secure=request.is_secure,
+                        samesite='Strict', max_age=3600, path='/')
+    return response
+
+
 @app.get('/api/schema')
 def schema():
     adapter, token, user = session()

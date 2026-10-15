@@ -25,14 +25,14 @@ class SupabaseStore:
         if not self.url.startswith('https://'):
             raise CloudError('Supabase URL must use HTTPS.')
 
-    def call(self, path, token=None, body=None, privileged=False):
+    def call(self, path, token=None, body=None, privileged=False, method=None):
         key = self.secret if privileged else self.key
         headers = {'apikey': key, 'Content-Type': 'application/json'}
         if token:
             headers['Authorization'] = 'Bearer ' + token
         elif privileged and not key.startswith('sb_secret_'):
             headers['Authorization'] = 'Bearer ' + key
-        request = Request(self.url + path, headers=headers,
+        request = Request(self.url + path, headers=headers, method=method,
                           data=json.dumps(body, allow_nan=False).encode() if body is not None else None)
         try:
             with urlopen(request, timeout=20) as response:
@@ -55,6 +55,12 @@ class SupabaseStore:
 
     def login(self, email, password):
         return self.call('/auth/v1/token?grant_type=password', body={'email': email, 'password': password})
+
+    def recover(self, email):
+        return self.call('/auth/v1/recover', body={'email': email})
+
+    def set_password(self, token, password):
+        return self.call('/auth/v1/user', token, {'password': password}, method='PUT')
 
     def user(self, token):
         if not token:
