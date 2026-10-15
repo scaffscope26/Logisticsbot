@@ -1,5 +1,10 @@
 \set ON_ERROR_STOP on
 begin;
+do $$begin
+  if has_function_privilege('anon','public.rls_auto_enable()','execute')
+    or has_function_privilege('authenticated','public.rls_auto_enable()','execute') then
+    raise exception 'Platform event trigger remains client-callable'; end if;
+end$$;
 insert into auth.users values ('00000000-0000-0000-0000-000000000001'),('00000000-0000-0000-0000-000000000002');
 insert into logistics_private.workspaces(id,name) values('10000000-0000-0000-0000-000000000001','Test');
 insert into logistics_private.members values ('10000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000001','approver');

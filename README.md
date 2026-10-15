@@ -25,6 +25,16 @@ The original `python server.py` entrypoint remains an unauthenticated,
 single-user SQLite development tool. Keep it on localhost and use synthetic data.
 Vercel uses `app.py`, never `server.py`.
 
+## Current pilot deployment
+
+The approved Free-plan test project `cazqeiyrkqjezcanriow` follows
+`development/import-v0.1-prototype` through Supabase's GitHub deployment setting.
+Supabase labels this existing database "production", but it is the Logistics Bot
+test project. PR preview database branching remains disabled on the Free plan.
+Vercel connection variables are scoped only to Preview. Git `main` is unchanged.
+The remote-specific Auth configuration keeps invitations pointed at the stable
+Vercel branch preview URL. Changing that URL requires updating the remote config.
+
 ## Supabase / GitHub setup
 
 The versioned schema lives in `supabase/migrations/`. Supabase's GitHub integration
